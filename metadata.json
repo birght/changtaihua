@@ -1,0 +1,6 @@
+{
+  "name": "PM Blueprint Console",
+  "description": "An interactive, high-density project management and functional blueprint console for planning product modules, interaction flows, tech architectures, database schemas, and API specs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
