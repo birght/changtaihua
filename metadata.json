@@ -1,6 +1,6 @@
 {
-  "name": "PM Blueprint Console",
-  "description": "An interactive, high-density project management and functional blueprint console for planning product modules, interaction flows, tech architectures, database schemas, and API specs.",
+  "name": "政企联系走访与问题办结管理系统",
+  "description": "高密度政企联系走访与诉求办结系统。内置首页仪表盘全景、待联系企业动态提醒卡片、走访对接档案列表以及问题限时办结跟踪功能。",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
