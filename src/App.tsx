@@ -27,6 +27,8 @@ import {
   Sparkles,
   ExternalLink,
   ChevronRight,
+  ChevronLeft,
+  Menu,
   RefreshCw,
   Bell,
   CheckCircle2,
@@ -36,6 +38,16 @@ import {
 export default function App() {
   // 1. Navigation Tab State
   const [activeTab, setActiveTab] = useState<'dashboard' | 'reminder' | 'records' | 'apis'>('dashboard');
+  
+  // Sidebar Collapse State with LocalStorage Persistence
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+    const saved = localStorage.getItem('gov_sidebar_collapsed');
+    return saved === 'true';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('gov_sidebar_collapsed', String(sidebarCollapsed));
+  }, [sidebarCollapsed]);
   
   // 2. Global Core State with LocalStorage Persistence
   const [enterprises, setEnterprises] = useState<Enterprise[]>(() => {
@@ -276,117 +288,159 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 flex font-sans text-slate-800">
       {/* 1. Left Sidebar Navigation */}
-      <aside className="w-64 bg-slate-900 text-white shrink-0 hidden lg:flex flex-col border-r border-slate-950">
+      <aside className={`bg-slate-900 text-white shrink-0 hidden lg:flex flex-col border-r border-slate-950 transition-all duration-300 ease-in-out ${sidebarCollapsed ? 'w-16' : 'w-64'}`}>
         {/* Sidebar Header/Branding */}
-        <div className="p-5 border-b border-slate-950 flex flex-col gap-2 bg-slate-950/40">
+        <div className={`border-b border-slate-950 flex flex-col gap-2 bg-slate-950/40 transition-all duration-300 ${sidebarCollapsed ? 'p-3 items-center' : 'p-5'}`}>
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-blue-600 rounded-lg text-white shadow-lg shadow-blue-500/25">
+            <div className="p-2 bg-blue-600 rounded-lg text-white shadow-lg shadow-blue-500/25 shrink-0" title="合肥政企包保直通车">
               <FolderSync className="w-5 h-5 animate-spin-slow" />
             </div>
-            <div>
-              <h1 className="text-sm font-black tracking-wider text-white uppercase">合肥政企包保直通车</h1>
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">联系走访与问题闭环系统</span>
-            </div>
+            {!sidebarCollapsed && (
+              <div className="min-w-0 transition-opacity duration-300">
+                <h1 className="text-sm font-black tracking-wider text-white uppercase truncate">合肥政企包保直通车</h1>
+                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block truncate">联系走访与问题闭环系统</span>
+              </div>
+            )}
           </div>
           
           {/* User Role Badge */}
-          <div className="mt-2.5 p-2 bg-slate-850 rounded-lg border border-slate-800 flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            <div className="min-w-0">
-              <div className="text-[10px] text-slate-400 font-semibold leading-none">登录专员</div>
-              <div className="text-[11px] font-bold text-slate-200 mt-1 truncate">包保工作组五组 (组长)</div>
+          {!sidebarCollapsed ? (
+            <div className="mt-2.5 p-2 bg-slate-850 rounded-lg border border-slate-800 flex items-center gap-2 overflow-hidden transition-all">
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <div className="min-w-0">
+                <div className="text-[10px] text-slate-400 font-semibold leading-none">登录专员</div>
+                <div className="text-[11px] font-bold text-slate-200 mt-1 truncate">包保工作组五组 (组长)</div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="mt-1 flex justify-center" title="包保工作组五组 (组长)">
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+          )}
         </div>
 
         {/* Tab Selection List */}
-        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
-          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3.5 mb-2">
-            业务操作视窗
-          </div>
+        <nav className={`flex-1 overflow-y-auto transition-all duration-300 ${sidebarCollapsed ? 'p-2 space-y-3' : 'p-4 space-y-1.5'}`}>
+          {!sidebarCollapsed ? (
+            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3.5 mb-2 truncate">
+              业务操作视窗
+            </div>
+          ) : (
+            <div className="h-px bg-slate-850 my-2" />
+          )}
 
           <button
             onClick={() => { setActiveTab('dashboard'); setSearchFilterQuery(''); }}
-            className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+            className={`w-full flex items-center rounded-lg transition-all cursor-pointer ${
+              sidebarCollapsed ? 'justify-center p-2.5' : 'justify-between px-3.5 py-2.5'
+            } ${
               activeTab === 'dashboard'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/10'
                 : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
             }`}
+            title={sidebarCollapsed ? "联系走访全景图" : undefined}
           >
-            <div className="flex items-center gap-2.5">
-              <LayoutDashboard className="w-4.5 h-4.5" />
-              <span>联系走访全景图</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <LayoutDashboard className="w-4.5 h-4.5 shrink-0" />
+              {!sidebarCollapsed && <span className="text-xs font-bold truncate">联系走访全景图</span>}
             </div>
-            <ChevronRight className="w-3.5 h-3.5 opacity-50" />
+            {!sidebarCollapsed && <ChevronRight className="w-3.5 h-3.5 opacity-50 shrink-0" />}
           </button>
 
           <button
             onClick={() => setActiveTab('reminder')}
-            className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+            className={`w-full flex items-center rounded-lg transition-all cursor-pointer relative ${
+              sidebarCollapsed ? 'justify-center p-2.5' : 'justify-between px-3.5 py-2.5'
+            } ${
               activeTab === 'reminder'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/10'
                 : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
             }`}
+            title={sidebarCollapsed ? `待联系企业提醒 (${enterprises.length})` : undefined}
           >
-            <div className="flex items-center gap-2.5">
-              <Clock className="w-4.5 h-4.5" />
-              <span>待联系企业提醒</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Clock className="w-4.5 h-4.5 shrink-0" />
+              {!sidebarCollapsed && <span className="text-xs font-bold truncate">待联系企业提醒</span>}
             </div>
-            <span className="text-[9px] font-mono bg-blue-500/20 text-blue-300 font-extrabold px-1.5 py-0.2 rounded border border-blue-500/30">
-              {enterprises.length}
-            </span>
+            {!sidebarCollapsed ? (
+              <span className="text-[9px] font-mono bg-blue-500/20 text-blue-300 font-extrabold px-1.5 py-0.2 rounded border border-blue-500/30 shrink-0">
+                {enterprises.length}
+              </span>
+            ) : (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full" />
+            )}
           </button>
 
           <button
             onClick={() => { setActiveTab('records'); setSearchFilterQuery(''); }}
-            className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+            className={`w-full flex items-center rounded-lg transition-all cursor-pointer relative ${
+              sidebarCollapsed ? 'justify-center p-2.5' : 'justify-between px-3.5 py-2.5'
+            } ${
               activeTab === 'records'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/10'
                 : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
             }`}
+            title={sidebarCollapsed ? `走访联系记录表 (${visitRecords.length})` : undefined}
           >
-            <div className="flex items-center gap-2.5">
-              <Building2 className="w-4.5 h-4.5" />
-              <span>走访联系记录表</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Building2 className="w-4.5 h-4.5 shrink-0" />
+              {!sidebarCollapsed && <span className="text-xs font-bold truncate">走访联系记录表</span>}
             </div>
-            <span className="text-[9px] font-mono bg-slate-800 text-slate-300 font-bold px-1.5 py-0.2 rounded border border-slate-700">
-              {visitRecords.length}
-            </span>
+            {!sidebarCollapsed ? (
+              <span className="text-[9px] font-mono bg-slate-800 text-slate-300 font-bold px-1.5 py-0.2 rounded border border-slate-700 shrink-0">
+                {visitRecords.length}
+              </span>
+            ) : (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-slate-400 rounded-full" />
+            )}
           </button>
 
-          <div className="pt-4 pb-2">
-            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3.5">
-              接口与联调
+          {!sidebarCollapsed ? (
+            <div className="pt-4 pb-2">
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3.5 truncate">
+                接口与联调
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="h-px bg-slate-850 my-4" />
+          )}
 
           <button
             onClick={() => setActiveTab('apis')}
-            className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+            className={`w-full flex items-center rounded-lg transition-all cursor-pointer relative ${
+              sidebarCollapsed ? 'justify-center p-2.5' : 'justify-between px-3.5 py-2.5'
+            } ${
               activeTab === 'apis'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/10'
                 : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
             }`}
+            title={sidebarCollapsed ? `核心数据接口 (API) (${apiLogs.length})` : undefined}
           >
-            <div className="flex items-center gap-2.5">
-              <Terminal className="w-4.5 h-4.5" />
-              <span>核心数据接口 (API)</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Terminal className="w-4.5 h-4.5 shrink-0" />
+              {!sidebarCollapsed && <span className="text-xs font-bold truncate">核心数据接口 (API)</span>}
             </div>
-            {apiLogs.length > 0 && (
-              <span className="text-[9px] font-mono bg-emerald-500/20 text-emerald-400 font-extrabold px-1 rounded animate-pulse">
-                {apiLogs.length}
-              </span>
+            {!sidebarCollapsed ? (
+              apiLogs.length > 0 && (
+                <span className="text-[9px] font-mono bg-emerald-500/20 text-emerald-400 font-extrabold px-1 rounded animate-pulse shrink-0">
+                  {apiLogs.length}
+                </span>
+              )
+            ) : (
+              apiLogs.length > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+              )
             )}
           </button>
         </nav>
 
         {/* Footer branding details */}
-        <div className="p-4 border-t border-slate-950 text-[11px] text-slate-500 flex flex-col gap-1 bg-slate-950/20">
-          <div className="flex items-center gap-1">
-            <CloudCheck className="w-4 h-4 text-emerald-500" />
-            <span>合肥市大数据包保中台</span>
+        <div className={`border-t border-slate-950 text-[11px] text-slate-500 flex flex-col gap-1 bg-slate-950/20 transition-all duration-300 ${sidebarCollapsed ? 'p-3 items-center' : 'p-4'}`}>
+          <div className="flex items-center gap-1" title="合肥市大数据包保中台">
+            <CloudCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+            {!sidebarCollapsed && <span className="truncate">合肥市大数据包保中台</span>}
           </div>
-          <span className="font-mono text-[9px] text-slate-600">v1.2.4 (React 19 Prod)</span>
+          {!sidebarCollapsed && <span className="font-mono text-[9px] text-slate-600 truncate">v1.2.4 (React 19 Prod)</span>}
         </div>
       </aside>
 
@@ -396,6 +450,20 @@ export default function App() {
         <header className="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 shadow-xs">
           {/* Left panel indicators */}
           <div className="flex items-center gap-3">
+            {/* Toggle Sidebar Collapse Button */}
+            <button
+              id="sidebar-toggle-btn"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="hidden lg:flex items-center justify-center p-1.5 rounded-lg text-slate-500 hover:text-slate-850 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer mr-1"
+              title={sidebarCollapsed ? "展开菜单栏" : "折叠菜单栏"}
+            >
+              {sidebarCollapsed ? (
+                <Menu className="w-4 h-4" />
+              ) : (
+                <ChevronLeft className="w-4 h-4" />
+              )}
+            </button>
+
             <div className="lg:hidden p-1 bg-slate-900 rounded text-white mr-1">
               <FolderSync className="w-4.5 h-4.5" />
             </div>
